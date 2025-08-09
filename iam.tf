@@ -18,8 +18,9 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_core" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# יצירת Instance Profile לשיוך ל-EC2
 resource "aws_iam_instance_profile" "ec2_ssm_profile" {
-  name = "${var.project_name}-ec2-ssm-profile"
+  name = "new-project-ec2-ssm-profile-v2"
   role = aws_iam_role.ec2_ssm_role.name
 }
+
+
