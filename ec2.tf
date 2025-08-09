@@ -1,3 +1,5 @@
+
+
 # יצירת EC2 פרטי עם IAM Profile של SSM
 resource "aws_instance" "nginx_instance" {
   ami                         = "ami-021589336d307b577" # Ubuntu 22.04 LTS (Jammy)
@@ -7,24 +9,9 @@ resource "aws_instance" "nginx_instance" {
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_profile.name
 
-  # user_data מותאם ל-Ubuntu 22.04
-  user_data = <<-EOF
-    #!/bin/bash
-    set -euxo pipefail
-    export DEBIAN_FRONTEND=noninteractive
-
-    # עדכון מערכת והתקנת Docker
-    apt-get update -y
-    apt-get install -y docker.io
-
-    # הפעלת Docker בהפעלה אוטומטית
-    systemctl enable --now docker
-
-    # הרצת קונטיינר NGINX עם טקסט מותאם
-    docker rm -f nginx 2>/dev/null || true
-    docker run -d --restart unless-stopped -p 80:80 --name nginx \
-      nginx:latest /bin/sh -c "echo 'yo this is nginx' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
-  EOF
+  # user_data מתוך קובץ scripts/user_data.sh
+  user_data = file("${path.module}/scripts/user_data.sh")
+  user_data_replace_on_change = true
 
   tags = {
     Name = "${var.project_name}-nginx-private"
@@ -37,5 +24,4 @@ resource "aws_lb_target_group_attachment" "nginx_tg_attachment" {
   target_id        = aws_instance.nginx_instance.id
   port             = 80
 }
-
 
