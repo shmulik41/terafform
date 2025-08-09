@@ -6,7 +6,11 @@ on:
 
 jobs:
   deploy:
+    if: false          # משבית זמנית את ה-job
     runs-on: ubuntu-latest
+    steps:
+      ...
+
 
     steps:
       - name: Checkout
